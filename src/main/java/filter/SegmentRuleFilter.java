@@ -10,14 +10,34 @@ public class SegmentRuleFilter {
     // TODO: Make me static, figure out powermock
     public boolean filterSegmentRules(
         Product product,
-        Map<String, String> attributes,
+        Map<String, String> givenAttributes,
         List<SegmentRule> allSegmentRules,
         List<Segment> allSegments,
         List<Fragment> allFragments
     ) {
-        TreeNode parent = buildTree(product, allSegmentRules, allSegments, allFragments);
+        TreeNode root = buildTree(product, allSegmentRules, allSegments, allFragments);
 
-        return false;
+        return isMatching(root, givenAttributes);
+    }
+
+    private boolean isMatching(TreeNode treeNode, Map<String, String> givenAttributes) {
+        if (treeNode.getCriteriaKey().isPresent()) {
+            // CHILD NODE
+
+            String criteriaKey = treeNode.getCriteriaKey().get();
+            String criteriaValue = treeNode.getCriteriaValue().get();
+
+            if (givenAttributes.containsKey(criteriaKey)) {
+                return givenAttributes.get(criteriaKey).equals(criteriaValue);
+            } else {
+                return false;
+            }
+        } else {
+            // BRANCH NODE
+
+            return treeNode.getChildren().stream()
+                .allMatch(child -> isMatching(child, givenAttributes));
+        }
     }
 
     // TODO: Make me recursive
