@@ -6,7 +6,7 @@ public class ProductBuilder {
     private String id;
     private String name;
     private float cost;
-    private List<String> ruleIds;
+    private List<String> segmentRuleIds;
 
     public ProductBuilder id(String id) {
         this.id = id;
@@ -23,8 +23,8 @@ public class ProductBuilder {
         return this;
     }
 
-    public ProductBuilder ruleIds(List<String> ruleIds) {
-        this.ruleIds = ruleIds;
+    public ProductBuilder segmentRuleIds(List<String> segmentRuleIds) {
+        this.segmentRuleIds = segmentRuleIds;
         return this;
     }
 
@@ -33,6 +33,6 @@ public class ProductBuilder {
     }
 
     public Product build() {
-        return new Product(id, name, cost, ruleIds);
+        return new Product(id, name, cost, segmentRuleIds);
     }
 }

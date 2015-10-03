@@ -6,13 +6,13 @@ public class Product {
     private String id;
     private String name;
     private float cost;
-    private List<String> ruleIds;
+    private List<String> segmentRuleIds;
 
     public Product(String id, String name, float cost, List<String> ruleIds) {
         this.id = id;
         this.name = name;
         this.cost = cost;
-        this.ruleIds = ruleIds;
+        this.segmentRuleIds = ruleIds;
     }
 
     public String getId() {
@@ -27,8 +27,8 @@ public class Product {
         return cost;
     }
 
-    public List<String> getRuleIds() {
-        return ruleIds;
+    public List<String> getSegmentRuleIds() {
+        return segmentRuleIds;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class Product {
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", cost=" + cost +
-            ", ruleIds=" + ruleIds +
+            ", segmentRuleIds=" + segmentRuleIds +
             '}';
     }
 
@@ -56,7 +56,7 @@ public class Product {
             return false;
         if (name != null ? !name.equals(product.name) : product.name != null)
             return false;
-        return !(ruleIds != null ? !ruleIds.equals(product.ruleIds) : product.ruleIds != null);
+        return !(segmentRuleIds != null ? !segmentRuleIds.equals(product.segmentRuleIds) : product.segmentRuleIds != null);
 
     }
 
@@ -65,7 +65,7 @@ public class Product {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (cost != +0.0f ? Float.floatToIntBits(cost) : 0);
-        result = 31 * result + (ruleIds != null ? ruleIds.hashCode() : 0);
+        result = 31 * result + (segmentRuleIds != null ? segmentRuleIds.hashCode() : 0);
         return result;
     }
 }

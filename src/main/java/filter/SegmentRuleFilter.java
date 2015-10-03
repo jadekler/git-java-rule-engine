@@ -1,11 +1,18 @@
 package filter;
 
-import model.Product;
+import model.*;
 
-import java.util.Map;
+import java.util.*;
 
 public class SegmentRuleFilter {
-    public static boolean filterSegmentRules(Product product, Map<String, String> attributes) {
+    // TODO: Make me static, figure out powermock
+    public boolean filterSegmentRules(
+        Product product,
+        Map<String, String> attributes,
+        List<SegmentRule> allSegmentRules,
+        List<Segment> allSegments,
+        List<Fragment> allFragments
+    ) {
         return false;
     }
 }

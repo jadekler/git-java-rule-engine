@@ -22,7 +22,7 @@ public class SegmentRuleBuilder {
         return this;
     }
 
-    public static SegmentRuleBuilder ruleBuilder() {
+    public static SegmentRuleBuilder segmentRuleBuilder() {
         return new SegmentRuleBuilder();
     }
 

@@ -1,11 +1,11 @@
 package filter;
 
-import model.Product;
+import model.*;
 import repository.*;
 
 import java.util.*;
 
-import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 public class ProductFilter {
     private final ProductRepository productRepository;
@@ -30,6 +30,19 @@ public class ProductFilter {
     }
 
     public List<Product> getMatchingProducts(Map<String, String> attributes) {
-        return emptyList();
+        List<Product> allProducts = productRepository.getAll();
+        List<SegmentRule> allSegmentRules = segmentRuleRepository.getAll();
+        List<Segment> allSegments = segmentRepository.getAll();
+        List<Fragment> allFragments = fragmentRepository.getAll();
+
+        return allProducts.stream()
+            .filter(product -> segmentRuleFilter.filterSegmentRules(
+                product,
+                attributes,
+                allSegmentRules,
+                allSegments,
+                allFragments
+            ))
+            .collect(toList());
     }
 }
