@@ -1,28 +1,362 @@
 package filter;
 
-import org.junit.Test;
+import model.*;
+import org.junit.*;
 
 import static java.util.Arrays.asList;
 import static model.FragmentBuilder.fragmentBuilder;
 import static model.ProductBuilder.productBuilder;
 import static model.SegmentBuilder.segmentBuilder;
 import static model.SegmentRuleBuilder.segmentRuleBuilder;
-import static org.mockito.Mockito.doReturn;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static utils.MapBuilder.mapBuilder;
 
 public class SegmentRuleFilterTest {
+    private SegmentRuleFilter segmentRuleFilter;
+
+    @Before
+    public void setup() {
+        initMocks(this);
+
+        segmentRuleFilter = new SegmentRuleFilter();
+    }
+
     @Test
-    public void testFilterSegmentRules() {
-//        doReturn(productBuilder().id("abc").segmentRuleIds(asList("segment rule id 1")).build())
-//            .when(productRepository).getAll();
-//
-//        doReturn(segmentRuleBuilder().id("segment rule id 1").segmentIds(asList("segment id 1")))
-//            .when(segmentRuleRepository).getAll();
-//
-//        doReturn(segmentBuilder().id("segment id 1").fragmentIds(asList("fragment id 1")))
-//            .when(segmentRuleRepository).getAll();
-//
-//        doReturn(fragmentBuilder().id("segment rule id 1").requiredAttributes(mapBuilder().put("some_key", "some_value").build()))
-//            .when(segmentRuleRepository).getAll();
+    public void testFilterSegmentRules_MatchedAttribute_TwoMatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("segment rule id 1"))
+            .build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("segment id 1"))
+            .build();
+
+        Segment segment = segmentBuilder()
+            .id("segment id 1")
+            .fragmentIds(asList("fragment id 1"))
+            .build();
+
+        Fragment fragment = fragmentBuilder()
+            .id("segment rule id 1")
+            .requiredAttributes(mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "another_matched_value")
+                .build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "another_matched_value")
+                .build(),
+            asList(segmentRule),
+            asList(segment),
+            asList(fragment));
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleAttributes_OneMatchedOneUnmatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("segment rule id 1"))
+            .build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("segment id 1"))
+            .build();
+
+        Segment segment = segmentBuilder()
+            .id("segment id 1")
+            .fragmentIds(asList("fragment id 1"))
+            .build();
+
+        Fragment fragment = fragmentBuilder()
+            .id("segment rule id 1")
+            .requiredAttributes(
+                mapBuilder()
+                    .put("key_one", "some_matched_value")
+                    .put("key_two", "this_value_will_not_be_matched")
+                    .build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "some_unmatched_value")
+                .build(),
+            asList(segmentRule),
+            asList(segment),
+            asList(fragment));
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleFragments_TwoMatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("segment rule id 1"))
+            .build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("segment id 1"))
+            .build();
+
+        Segment segment = segmentBuilder()
+            .id("segment id 1")
+            .fragmentIds(asList("matched fragment", "another matched fragment"))
+            .build();
+
+        Fragment matchedFragment = fragmentBuilder()
+            .id("matched fragment")
+            .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
+            .build();
+        Fragment anotherMatchedFragment = fragmentBuilder()
+            .id("another matched fragment")
+            .requiredAttributes(mapBuilder().put("key_two", "another_matched_value").build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "another_matched_value")
+                .build(),
+            asList(segmentRule),
+            asList(segment),
+            asList(matchedFragment, anotherMatchedFragment));
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleFragments_OneMatchedOneUnmatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("segment rule id 1"))
+            .build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("segment id 1"))
+            .build();
+
+        Segment segment = segmentBuilder()
+            .id("segment id 1")
+            .fragmentIds(asList("matched fragment", "unmatched fragment"))
+            .build();
+
+        Fragment matchedFragment = fragmentBuilder()
+            .id("matched fragment")
+            .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
+            .build();
+        Fragment unmatchedFragment = fragmentBuilder()
+            .id("unmatched fragment")
+            .requiredAttributes(mapBuilder().put("key_two", "this_value_will_not_be_matched").build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "some_unmatched_value")
+                .build(),
+            asList(segmentRule),
+            asList(segment),
+            asList(matchedFragment, unmatchedFragment));
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleSegments_TwoMatched() {
+        Product product = productBuilder().id("product 1").segmentRuleIds(asList("segment rule id 1")).build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("matched segment", "another matched segment"))
+            .build();
+
+        Segment matchedSegment = segmentBuilder()
+            .id("matched segment")
+            .fragmentIds(asList("matched fragment"))
+            .build();
+        Segment anotherMatchedSegment = segmentBuilder()
+            .id("another matched segment")
+            .fragmentIds(asList("another matched fragment"))
+            .build();
+
+        Fragment matchedFragment = fragmentBuilder()
+            .id("matched fragment")
+            .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
+            .build();
+        Fragment anotherMatchedFragment = fragmentBuilder()
+            .id("another matched fragment")
+            .requiredAttributes(mapBuilder().put("key_two", "another_matched_value").build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "another_matched_value")
+                .build(),
+            asList(segmentRule),
+            asList(matchedSegment, anotherMatchedSegment),
+            asList(matchedFragment, anotherMatchedFragment));
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleSegments_OneMatchedOneUnmatched() {
+        Product product = productBuilder().id("product 1").segmentRuleIds(asList("segment rule id 1")).build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("matched segment", "another matched segment"))
+            .build();
+
+        Segment matchedSegment = segmentBuilder()
+            .id("matched segment")
+            .fragmentIds(asList("matched fragment"))
+            .build();
+        Segment unmatchedSegment = segmentBuilder()
+            .id("unmatched segment")
+            .fragmentIds(asList("unmatched fragment"))
+            .build();
+
+        Fragment matchedFragment = fragmentBuilder()
+            .id("matched fragment")
+            .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
+            .build();
+        Fragment unmatchedFragment = fragmentBuilder()
+            .id("unmatched fragment")
+            .requiredAttributes(mapBuilder().put("key_two", "this_value_will_not_be_matched").build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "unmatched_value")
+                .build(),
+            asList(segmentRule),
+            asList(matchedSegment, unmatchedSegment),
+            asList(matchedFragment, unmatchedFragment));
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleSegmentRules_TwoMatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("matched segment rule", "another matched segment rule"))
+            .build();
+
+        SegmentRule matchedSegmentRule = segmentRuleBuilder()
+            .id("matched segment rule")
+            .segmentIds(asList("matched segment"))
+            .build();
+        SegmentRule anotherMatchedSegmentRule = segmentRuleBuilder()
+            .id("another matched segment rule")
+            .segmentIds(asList("another matched segment"))
+            .build();
+
+        Segment matchedSegment = segmentBuilder()
+            .id("matched segment")
+            .fragmentIds(asList("matched fragment"))
+            .build();
+        Segment anotherMatchedSegment = segmentBuilder()
+            .id("another matched segment")
+            .fragmentIds(asList("another matched fragment"))
+            .build();
+
+        Fragment matchedFragment = fragmentBuilder()
+            .id("matched fragment")
+            .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
+            .build();
+        Fragment anotherMatchedFragment = fragmentBuilder()
+            .id("another matched fragment")
+            .requiredAttributes(mapBuilder().put("key_two", "another_matched_value").build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "another_matched_value")
+                .build(),
+            asList(matchedSegmentRule, anotherMatchedSegmentRule),
+            asList(matchedSegment, anotherMatchedSegment),
+            asList(matchedFragment, anotherMatchedFragment));
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testFilterSegmentRules_MultipleSegmentRules_OneMatchedOneUnmatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("matched segment rule", "unmatched segment rule"))
+            .build();
+
+        SegmentRule matchedSegmentRule = segmentRuleBuilder()
+            .id("matched segment rule")
+            .segmentIds(asList("matched segment"))
+            .build();
+        SegmentRule unmatchedSegmentRule = segmentRuleBuilder()
+            .id("unmatched segment rule")
+            .segmentIds(asList("unmatched segment"))
+            .build();
+
+        Segment matchedSegment = segmentBuilder()
+            .id("matched segment")
+            .fragmentIds(asList("matched fragment"))
+            .build();
+        Segment unmatchedSegment = segmentBuilder()
+            .id("unmatched segment")
+            .fragmentIds(asList("unmatched fragment"))
+            .build();
+
+        Fragment matchedFragment = fragmentBuilder()
+            .id("matched fragment")
+            .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
+            .build();
+        Fragment unmatchedFragment = fragmentBuilder()
+            .id("another matched fragment")
+            .requiredAttributes(mapBuilder().put("key_two", "this_value_will_not_be_matched").build())
+            .build();
+
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "unmatched_value")
+                .build(),
+            asList(matchedSegmentRule, unmatchedSegmentRule),
+            asList(matchedSegment, unmatchedSegment),
+            asList(matchedFragment, unmatchedFragment));
+
+        assertFalse(result);
     }
 }
