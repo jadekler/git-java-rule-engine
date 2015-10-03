@@ -80,7 +80,7 @@ public class SegmentRuleFilterTest {
             .build();
 
         Fragment fragment = fragmentBuilder()
-            .id("segment rule id 1")
+            .id("fragment id 1")
             .requiredAttributes(
                 mapBuilder()
                     .put("key_one", "some_matched_value")
@@ -229,7 +229,7 @@ public class SegmentRuleFilterTest {
 
         SegmentRule segmentRule = segmentRuleBuilder()
             .id("segment rule id 1")
-            .segmentIds(asList("matched segment", "another matched segment"))
+            .segmentIds(asList("matched segment", "unmatched segment"))
             .build();
 
         Segment matchedSegment = segmentBuilder()
@@ -342,7 +342,7 @@ public class SegmentRuleFilterTest {
             .requiredAttributes(mapBuilder().put("key_one", "some_matched_value").build())
             .build();
         Fragment unmatchedFragment = fragmentBuilder()
-            .id("another matched fragment")
+            .id("unmatched fragment")
             .requiredAttributes(mapBuilder().put("key_two", "this_value_will_not_be_matched").build())
             .build();
 

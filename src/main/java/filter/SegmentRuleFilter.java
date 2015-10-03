@@ -16,7 +16,7 @@ public class SegmentRuleFilter {
         List<Fragment> allFragments
     ) {
         TreeNode root = buildTree(product, allSegmentRules, allSegments, allFragments);
-
+        
         return isMatching(root, givenAttributes);
     }
 
