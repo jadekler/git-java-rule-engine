@@ -21,13 +21,12 @@ public class SegmentRuleFilter {
 
     public boolean filterSegmentRules(Product product, Map<String, String> givenAttributes) {
         List<List<PreProcessedTreeNode>> levels = asList(allSegmentRules, allSegments, allFragments);
-        TreeNode recursive = genericSubleveler(product, levels, 0);
+        TreeNode recursive = buildTree(product, levels, 0);
 
-        return isMatching(recursive, givenAttributes);
+        return meetsCriteria(recursive, givenAttributes);
     }
 
-    // TODO: I need a better name
-    private static TreeNode genericSubleveler(
+    private static TreeNode buildTree(
         PreProcessedTreeNode parent,
         List<List<PreProcessedTreeNode>> childrenLevels,
         int depth
@@ -49,13 +48,13 @@ public class SegmentRuleFilter {
             .collect(toList());
 
         List<TreeNode> childrenForProduct = children.stream()
-            .map(child -> genericSubleveler(child, childrenLevels, depth + 1))
+            .map(child -> buildTree(child, childrenLevels, depth + 1))
             .collect(toList());
 
         return new TreeNode(childrenForProduct);
     }
 
-    private static boolean isMatching(TreeNode treeNode, Map<String, String> givenAttributes) {
+    private static boolean meetsCriteria(TreeNode treeNode, Map<String, String> givenAttributes) {
         if (treeNode.getCriteriaKey().isPresent()) {
             // CHILD NODE
 
@@ -71,7 +70,7 @@ public class SegmentRuleFilter {
             // BRANCH NODE
 
             return treeNode.getChildren().stream()
-                .allMatch(child -> isMatching(child, givenAttributes));
+                .allMatch(child -> meetsCriteria(child, givenAttributes));
         }
     }
 }
