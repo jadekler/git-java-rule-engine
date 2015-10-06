@@ -55,8 +55,8 @@ public class ProductFilterTest {
         doReturn(asList(segment)).when(segmentRepository).getAll();
         doReturn(asList(fragment)).when(fragmentRepository).getAll();
 
-        doReturn(true).when(segmentRuleFilter).filterSegmentRules(eq(matchedProduct), anyMap(), anyList(), anyList(), anyList());
-        doReturn(false).when(segmentRuleFilter).filterSegmentRules(eq(unmatchedProduct), anyMap(), anyList(), anyList(), anyList());
+        doReturn(true).when(segmentRuleFilter).filterSegmentRules(eq(matchedProduct), anyMap());
+        doReturn(false).when(segmentRuleFilter).filterSegmentRules(eq(unmatchedProduct), anyMap());
 
 
         List<Product> matchingProducts = productFilter.getMatchingProducts(mapBuilder().put("some_other_key", "some_other_value").build());
@@ -66,18 +66,12 @@ public class ProductFilterTest {
 
         verify(segmentRuleFilter).filterSegmentRules(
             matchedProduct,
-            mapBuilder().put("some_other_key", "some_other_value").build(),
-            asList(segmentRule),
-            asList(segment),
-            asList(fragment)
+            mapBuilder().put("some_other_key", "some_other_value").build()
         );
 
         verify(segmentRuleFilter).filterSegmentRules(
             unmatchedProduct,
-            mapBuilder().put("some_other_key", "some_other_value").build(),
-            asList(segmentRule),
-            asList(segment),
-            asList(fragment)
+            mapBuilder().put("some_other_key", "some_other_value").build()
         );
     }
 }

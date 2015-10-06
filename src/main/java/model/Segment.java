@@ -1,8 +1,8 @@
 package model;
 
-import java.util.List;
+import java.util.*;
 
-public class Segment {
+public class Segment implements PreProcessedTreeNode {
     private String id;
     private String description;
     private List<String> fragmentIds;
@@ -13,6 +13,7 @@ public class Segment {
         this.fragmentIds = fragmentIds;
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -23,6 +24,16 @@ public class Segment {
 
     public List<String> getFragmentIds() {
         return fragmentIds;
+    }
+
+    @Override
+    public List<String> getChildrenIds() {
+        return fragmentIds;
+    }
+
+    @Override
+    public Optional<Map<String, String>> getCriteria() {
+        return Optional.empty();
     }
 
     @Override

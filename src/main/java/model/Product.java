@@ -1,8 +1,8 @@
 package model;
 
-import java.util.List;
+import java.util.*;
 
-public class Product {
+public class Product implements PreProcessedTreeNode {
     private String id;
     private String name;
     private float cost;
@@ -15,6 +15,7 @@ public class Product {
         this.segmentRuleIds = ruleIds;
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -29,6 +30,16 @@ public class Product {
 
     public List<String> getSegmentRuleIds() {
         return segmentRuleIds;
+    }
+
+    @Override
+    public List<String> getChildrenIds() {
+        return segmentRuleIds;
+    }
+
+    @Override
+    public Optional<Map<String, String>> getCriteria() {
+        return Optional.empty();
     }
 
     @Override

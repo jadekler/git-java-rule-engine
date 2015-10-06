@@ -31,18 +31,9 @@ public class ProductFilter {
 
     public List<Product> getMatchingProducts(Map<String, String> attributes) {
         List<Product> allProducts = productRepository.getAll();
-        List<SegmentRule> allSegmentRules = segmentRuleRepository.getAll();
-        List<Segment> allSegments = segmentRepository.getAll();
-        List<Fragment> allFragments = fragmentRepository.getAll();
 
         return allProducts.stream()
-            .filter(product -> segmentRuleFilter.filterSegmentRules(
-                product,
-                attributes,
-                allSegmentRules,
-                allSegments,
-                allFragments
-            ))
+            .filter(product -> segmentRuleFilter.filterSegmentRules(product, attributes))
             .collect(toList());
     }
 }

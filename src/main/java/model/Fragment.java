@@ -1,8 +1,10 @@
 package model;
 
-import java.util.Map;
+import java.util.*;
 
-public class Fragment {
+import static java.util.Collections.emptyList;
+
+public class Fragment implements PreProcessedTreeNode {
     private String id;
     private String description;
     private Map<String, String> requiredAttributes;
@@ -13,6 +15,7 @@ public class Fragment {
         this.requiredAttributes = requiredAttributes;
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -23,6 +26,16 @@ public class Fragment {
 
     public Map<String, String> getRequiredAttributes() {
         return requiredAttributes;
+    }
+
+    @Override
+    public List<String> getChildrenIds() {
+        return emptyList();
+    }
+
+    @Override
+    public Optional<Map<String, String>> getCriteria() {
+        return Optional.of(requiredAttributes);
     }
 
     @Override

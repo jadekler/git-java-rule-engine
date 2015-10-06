@@ -8,19 +8,52 @@ import static model.FragmentBuilder.fragmentBuilder;
 import static model.ProductBuilder.productBuilder;
 import static model.SegmentBuilder.segmentBuilder;
 import static model.SegmentRuleBuilder.segmentRuleBuilder;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static utils.MapBuilder.mapBuilder;
 
 public class SegmentRuleFilterTest {
-    private SegmentRuleFilter segmentRuleFilter;
-
     @Before
     public void setup() {
         initMocks(this);
+    }
 
-        segmentRuleFilter = new SegmentRuleFilter();
+    @Test
+    public void testFilterSegmentRules_MatchedAttribute_NoneMatched() {
+        Product product = productBuilder()
+            .id("product 1")
+            .segmentRuleIds(asList("segment rule id 1"))
+            .build();
+
+        SegmentRule segmentRule = segmentRuleBuilder()
+            .id("segment rule id 1")
+            .segmentIds(asList("segment id 1"))
+            .build();
+
+        Segment segment = segmentBuilder()
+            .id("segment id 1")
+            .fragmentIds(asList("fragment id 1"))
+            .build();
+
+        Fragment fragment = fragmentBuilder()
+            .id("fragment id 1")
+            .requiredAttributes(mapBuilder()
+                .put("key_one", "some_matched_value")
+                .put("key_two", "another_matched_value")
+                .build())
+            .build();
+
+
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(asList(segmentRule), asList(segment), asList(fragment));
+
+        boolean result = segmentRuleFilter.filterSegmentRules(
+            product,
+            mapBuilder()
+                .put("key_one", "nope")
+                .put("key_two", "nope")
+                .build());
+
+        assertFalse(result);
     }
 
     @Test
@@ -41,7 +74,7 @@ public class SegmentRuleFilterTest {
             .build();
 
         Fragment fragment = fragmentBuilder()
-            .id("segment rule id 1")
+            .id("fragment id 1")
             .requiredAttributes(mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "another_matched_value")
@@ -49,15 +82,14 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(asList(segmentRule), asList(segment), asList(fragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "another_matched_value")
-                .build(),
-            asList(segmentRule),
-            asList(segment),
-            asList(fragment));
+                .build());
 
         assertTrue(result);
     }
@@ -89,15 +121,14 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(asList(segmentRule), asList(segment), asList(fragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "some_unmatched_value")
-                .build(),
-            asList(segmentRule),
-            asList(segment),
-            asList(fragment));
+                .build());
 
         assertFalse(result);
     }
@@ -129,15 +160,17 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(
+            asList(segmentRule),
+            asList(segment),
+            asList(matchedFragment, anotherMatchedFragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "another_matched_value")
-                .build(),
-            asList(segmentRule),
-            asList(segment),
-            asList(matchedFragment, anotherMatchedFragment));
+                .build());
 
         assertTrue(result);
     }
@@ -169,15 +202,17 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(
+            asList(segmentRule),
+            asList(segment),
+            asList(matchedFragment, unmatchedFragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "some_unmatched_value")
-                .build(),
-            asList(segmentRule),
-            asList(segment),
-            asList(matchedFragment, unmatchedFragment));
+                .build());
 
         assertFalse(result);
     }
@@ -210,15 +245,17 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(
+            asList(segmentRule),
+            asList(matchedSegment, anotherMatchedSegment),
+            asList(matchedFragment, anotherMatchedFragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "another_matched_value")
-                .build(),
-            asList(segmentRule),
-            asList(matchedSegment, anotherMatchedSegment),
-            asList(matchedFragment, anotherMatchedFragment));
+                .build());
 
         assertTrue(result);
     }
@@ -251,15 +288,17 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(
+            asList(segmentRule),
+            asList(matchedSegment, unmatchedSegment),
+            asList(matchedFragment, unmatchedFragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "unmatched_value")
-                .build(),
-            asList(segmentRule),
-            asList(matchedSegment, unmatchedSegment),
-            asList(matchedFragment, unmatchedFragment));
+                .build());
 
         assertFalse(result);
     }
@@ -299,15 +338,17 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(
+            asList(matchedSegmentRule, anotherMatchedSegmentRule),
+            asList(matchedSegment, anotherMatchedSegment),
+            asList(matchedFragment, anotherMatchedFragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "another_matched_value")
-                .build(),
-            asList(matchedSegmentRule, anotherMatchedSegmentRule),
-            asList(matchedSegment, anotherMatchedSegment),
-            asList(matchedFragment, anotherMatchedFragment));
+                .build());
 
         assertTrue(result);
     }
@@ -347,15 +388,17 @@ public class SegmentRuleFilterTest {
             .build();
 
 
+        SegmentRuleFilter segmentRuleFilter = new SegmentRuleFilter(
+            asList(matchedSegmentRule, unmatchedSegmentRule),
+            asList(matchedSegment, unmatchedSegment),
+            asList(matchedFragment, unmatchedFragment));
+
         boolean result = segmentRuleFilter.filterSegmentRules(
             product,
             mapBuilder()
                 .put("key_one", "some_matched_value")
                 .put("key_two", "unmatched_value")
-                .build(),
-            asList(matchedSegmentRule, unmatchedSegmentRule),
-            asList(matchedSegment, unmatchedSegment),
-            asList(matchedFragment, unmatchedFragment));
+                .build());
 
         assertFalse(result);
     }
